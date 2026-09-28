@@ -6,7 +6,21 @@ You don't need an idea yet. Claude will help you find one.
 
 ## My project
 
-Nothing yet! Claude will help you describe your project here.
+**Hoenn Puzzle Adventure** is a Pokémon text adventure with no battles.
+You pick Spheal, Seedot or Litwick from Professor Kestrel in Littleroot Town.
+The other two join you along the way.
+To get past each obstacle, you pick the Pokémon whose type fits the problem.
+Water puts out fires, Grass grows vine bridges and Fire burns through ropes.
+When your Pokémon help solve puzzles, your friendship grows and they evolve.
+The goal is the journey: make friends and become a smart problem solver.
+
+Professors are named after North American birds, not trees.
+
+Run it with:
+
+```
+python3 main.py
+```
 
 ## Before you start
 
