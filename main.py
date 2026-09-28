@@ -1,7 +1,7 @@
 """Hoenn Puzzle Adventure: a Pokemon text game about friendship and problem solving."""
 
 from pokemon import make_trio
-from puzzles import ACT1, MEETINGS
+from puzzles import ACT1, ACT2, ACT3, MEETINGS
 
 # The order you meet the others depends on your starter: Water -> Grass -> Fire -> Water.
 TYPE_ORDER = ["Water", "Grass", "Fire"]
@@ -87,11 +87,25 @@ def main():
     third = trio[TYPE_ORDER[(start + 2) % 3]]
 
     meet(second, team)
-    # TODO (Step 4): Act 2 puzzle that needs the second Pokemon's type.
+
+    # Act 2: a puzzle that needs your new friend's type.
+    solve_puzzle(ACT2[second.types[0]], team)
     meet(third, team)
 
-    print("\nThe road ahead is open. Your adventure is just beginning...")
-    print("(More coming soon!)")
+    # Act 3: two-step puzzles that need the whole team.
+    print("\nWith all three friends together, you set off for Shoal Cave.")
+    for puzzle in ACT3:
+        print("\n" + puzzle["intro"])
+        for step in puzzle["steps"]:
+            solve_puzzle(step, team)
+
+    # Finale: everyone shares the moment, and everyone's friendship grows.
+    print("\nAt the bottom of Shoal Cave, the ice sparkles like stars.")
+    print("Your team huddles close around you. You did it together!\n")
+    for pokemon in team:
+        pokemon.add_friendship()
+
+    print("\nThe End... of this chapter. Thanks for playing!")
 
 
 if __name__ == "__main__":

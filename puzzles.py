@@ -22,6 +22,86 @@ ACT1 = {
     },
 }
 
+# Act 2: one puzzle per type, used for the second Pokemon you meet.
+ACT2 = {
+    "Water": {
+        "scene": (
+            "An old water mill blocks the path. The gate only opens when the wheel turns,\n"
+            "but the stream that turns it has dried up."
+        ),
+        "solution": "Water",
+        "success": "{name} fills the channel with water. The wheel creaks, turns and the gate lifts!",
+        "hint": "The wheel needs a stream of water to turn.",
+    },
+    "Grass": {
+        "scene": "A tall, smooth rock wall stands in your way. There's nothing to hold on to.",
+        "solution": "Grass",
+        "success": "{name} grows thick vines up the wall. You climb up like a ladder!",
+        "hint": "Something that grows could make a ladder.",
+    },
+    "Fire": {
+        "scene": "Rusturf Tunnel is pitch black. You can't see your own feet.",
+        "solution": "Fire",
+        "success": "{name}'s flame lights up the tunnel. You find the way through!",
+        "hint": "You need some light in here.",
+    },
+}
+
+# Act 3: two-step puzzles on the way to Shoal Cave. Each step needs a different type.
+ACT3 = [
+    {
+        "intro": "On Route 119, a fallen torch has set a pile of leaves on fire.",
+        "steps": [
+            {
+                "scene": "The flames block the way to a gate.",
+                "solution": "Water",
+                "success": "{name} puts out the fire. Behind the smoke, the gate is tied shut with rope!",
+                "hint": "First, the fire has to go.",
+            },
+            {
+                "scene": "The rope is knotted too tight to untie.",
+                "solution": "Fire",
+                "success": "{name} carefully burns just the rope. The gate swings open!",
+                "hint": "What could burn a rope away, safely?",
+            },
+        ],
+    },
+    {
+        "intro": "At a wide canyon near Fortree City, there's no way across.",
+        "steps": [
+            {
+                "scene": "The ground at the edge is bare and dusty.",
+                "solution": "Grass",
+                "success": "{name} plants seeds along the edge. But the dry dirt is too thirsty for them to sprout...",
+                "hint": "Something needs to be planted first.",
+            },
+            {
+                "scene": "The seeds need a drink.",
+                "solution": "Water",
+                "success": "{name} gives the seeds a gentle shower. Vines shoot up and weave a bridge across!",
+                "hint": "Plants need water to grow.",
+            },
+        ],
+    },
+    {
+        "intro": "You reach Shoal Cave at last! Inside, the air is freezing.",
+        "steps": [
+            {
+                "scene": "A thick wall of ice blocks the tunnel.",
+                "solution": "Fire",
+                "success": "{name}'s warm flame melts the ice. Behind it is a steep, slippery slope going down.",
+                "hint": "What melts ice?",
+            },
+            {
+                "scene": "The icy slope is too slippery to walk down.",
+                "solution": "Grass",
+                "success": "{name} grows a strong vine rope. You all climb safely down to the bottom!",
+                "hint": "A rope would help. What could grow one?",
+            },
+        ],
+    },
+]
+
 # Meeting scenes: help a wild Pokemon kindly and it joins your team.
 # "correct" is the number of the kind choice. "wrong" has a reply for each other choice.
 MEETINGS = {
