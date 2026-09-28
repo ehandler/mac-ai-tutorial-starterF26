@@ -1,7 +1,10 @@
 """Hoenn Puzzle Adventure: a Pokemon text game about friendship and problem solving."""
 
 from pokemon import make_trio
-from puzzles import ACT1
+from puzzles import ACT1, MEETINGS
+
+# The order you meet the others depends on your starter: Water -> Grass -> Fire -> Water.
+TYPE_ORDER = ["Water", "Grass", "Fire"]
 
 
 def ask(prompt):
@@ -46,6 +49,26 @@ def solve_puzzle(puzzle, team):
         print(f"{helper.name} tries its best, but it doesn't work. Hint: {puzzle['hint']}")
 
 
+def meet(pokemon, team):
+    """Play a meeting scene. When the player chooses kindly, the Pokemon joins the team."""
+    scene = MEETINGS[pokemon.types[0]]
+    print("\n" + scene["scene"])
+    while True:
+        print("What do you do?")
+        for number, choice in enumerate(scene["choices"], start=1):
+            print(f"  {number}. {choice}")
+        answer = ask("> ")
+        if not answer.isdigit() or not 1 <= int(answer) <= len(scene["choices"]):
+            print(f"Please type a number from 1 to {len(scene['choices'])}.")
+            continue
+        if int(answer) == scene["correct"]:
+            print(scene["success"])
+            team.append(pokemon)
+            print(f"\n{pokemon.name} joined your team!")
+            return
+        print(scene["wrong"][int(answer)] + " Try something kinder.\n")
+
+
 def main():
     print("=== Hoenn Puzzle Adventure ===\n")
     print("You wake up in Littleroot Town. Today is the day you get your first Pokemon!\n")
@@ -57,6 +80,15 @@ def main():
     # Act 1: a puzzle that fits your starter's type.
     starter_type = starter.types[0]
     solve_puzzle(ACT1[starter_type], team)
+
+    # Work out who you meet 2nd and 3rd, based on your starter.
+    start = TYPE_ORDER.index(starter_type)
+    second = trio[TYPE_ORDER[(start + 1) % 3]]
+    third = trio[TYPE_ORDER[(start + 2) % 3]]
+
+    meet(second, team)
+    # TODO (Step 4): Act 2 puzzle that needs the second Pokemon's type.
+    meet(third, team)
 
     print("\nThe road ahead is open. Your adventure is just beginning...")
     print("(More coming soon!)")
