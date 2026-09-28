@@ -41,6 +41,7 @@ def solve_puzzle(puzzle, team):
         helper = team[int(answer) - 1]
         if helper.has_type(puzzle["solution"]):
             print(puzzle["success"].format(name=helper.name))
+            helper.add_friendship()
             return helper
         print(f"{helper.name} tries its best, but it doesn't work. Hint: {puzzle['hint']}")
 
