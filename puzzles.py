@@ -121,7 +121,7 @@ MEETINGS = {
             3: "Spheal looks at you sadly as you turn away. Maybe it needs a friend.",
         },
         "success": (
-            "You wrap your arms around Spheal. It's round, cool and very squishy!\n"
+            "You wrap your arms around Spheal. It's round, soft and fuzzy, and very squishy!\n"
             "Together you roll it down to the waves. Spheal splashes happily,\n"
             "then rolls right back to you. It wants to come along!"
         ),

@@ -22,6 +22,9 @@ Run it with:
 python3 main.py
 ```
 
+While you play, type `team` to check on your friends, `hug` to hug them,
+`help` to see the commands or `quit` to stop.
+
 ## Before you start
 
 You need:
