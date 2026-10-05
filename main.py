@@ -9,7 +9,7 @@ TYPE_ORDER = ["Water", "Grass", "Fire"]
 HELP = "Commands: type a number to choose, 'team' to see your friends, 'hug' to hug them, 'quit' to stop."
 
 # Counts for the journey recap at the end.
-stats = {"puzzles": 0, "ideas_tried": 0}
+stats = {"steps": 0, "ideas_tried": 0, "missed": 0}
 
 
 def show_team(team):
@@ -66,25 +66,116 @@ def choose_starter(trio):
         print("Please type 1, 2 or 3.")
 
 
-def solve_puzzle(puzzle, team):
-    """Show a puzzle and keep asking until the player picks the right Pokemon."""
-    print("\n" + puzzle["scene"])
+def choose_number(prompt, count, team, allow_back=False):
+    """Ask for a number from 1 to count. Returns None if the player types 'back'."""
     while True:
-        print("Who can help?")
-        for number, pokemon in enumerate(team, start=1):
-            print(f"  {number}. {pokemon}")
-        answer = ask("> ", team)
-        if not answer.isdigit() or not 1 <= int(answer) <= len(team):
-            print(f"Please type a number from 1 to {len(team)}.")
+        answer = ask(prompt, team)
+        if allow_back and answer.lower() == "back":
+            return None
+        if answer.isdigit() and 1 <= int(answer) <= count:
+            return int(answer)
+        extra = " (or 'back')" if allow_back else ""
+        print(f"Please type a number from 1 to {count}{extra}.")
+
+
+def pick_move(team, question="Who can help?", exclude=None):
+    """Pick a Pokemon, then one of its moves. Returns (pokemon, move)."""
+    while True:
+        if len(team) == 1:
+            helper = team[0]
+        else:
+            print(question)
+            for number, pokemon in enumerate(team, start=1):
+                print(f"  {number}. {pokemon}")
+            helper = team[choose_number("> ", len(team), team) - 1]
+        if helper is exclude:
+            print(f"{helper.name} is already helping! Pick a different friend.\n")
             continue
-        stats["ideas_tried"] += 1
-        helper = team[int(answer) - 1]
-        if helper.has_type(puzzle["solution"]):
-            print(puzzle["success"].format(name=helper.name))
-            helper.add_friendship()
-            stats["puzzles"] += 1
-            return helper
-        print(f"{helper.name} tries its best, but it doesn't work. Hint: {puzzle['hint']}")
+        print(f"What should {helper.name} do?")
+        for number, move in enumerate(helper.moves, start=1):
+            print(f"  {number}. {move['name']}")
+        choice = choose_number("> ", len(helper.moves), team, allow_back=len(team) > 1)
+        if choice is None:
+            continue
+        return helper, helper.moves[choice - 1]
+
+
+def solve_step(step, team, misses, first_time=True):
+    """Play one step. Returns True if solved, or the step index to go back to after a setback.
+
+    Friendship only grows the first time a step is solved, not when redoing it after a setback.
+    """
+    solution = step["solution"]
+    if isinstance(solution, list):
+        print("This needs teamwork! Pick two friends to work together.")
+        first = pick_move(team, "Who goes first?")
+        second = pick_move(team, "Who helps them?", exclude=first[0])
+        helpers = [first, second]
+        tried = sorted(move["type"] for _, move in helpers)
+        solved = tried == sorted(solution)
+    else:
+        helpers = [pick_move(team)]
+        move = helpers[0][1]
+        tried = move["type"]
+        solved = solution in (move["type"], move["name"])
+    stats["ideas_tried"] += 1
+
+    if solved:
+        if len(helpers) == 1:
+            pokemon, move = helpers[0]
+            print(step["success"].format(name=pokemon.name, move=move["name"]))
+        else:
+            (p1, m1), (p2, m2) = helpers
+            print(step["success"].format(name1=p1.name, move1=m1["name"], name2=p2.name, move2=m2["name"]))
+        if first_time:
+            for pokemon, _ in helpers:
+                pokemon.add_friendship()
+            stats["steps"] += 1
+        return True
+
+    # A miss: show a fun reaction, maybe a setback, and a hint if the player seems stuck.
+    names = " and ".join(f"{pokemon.name} uses {move['name']}" for pokemon, move in helpers)
+    mistakes = step.get("mistakes", {})
+    if isinstance(tried, str):
+        key = helpers[0][1]["name"]
+        mistake = mistakes.get(key) or mistakes.get(tried)
+    else:
+        key = "+".join(tried)
+        mistake = mistakes.get(key)
+    if mistake:
+        print(f"{names}! " + mistake["text"].format(name=helpers[0][0].name))
+    else:
+        print(f"{names}! ...but nothing changes.")
+
+    stats["missed"] += 1
+    misses["total"] = misses.get("total", 0) + 1
+    misses[key] = misses.get(key, 0) + 1
+    if misses[key] >= 2 or misses["total"] >= 3:
+        print(f"Your friends huddle close and think together. Hint: {step['hint']}")
+
+    if mistake and "reset_to" in mistake:
+        return mistake["reset_to"]
+    return False
+
+
+def play_puzzle(puzzle, team):
+    """Play a puzzle step by step. Setbacks can send the player back to an earlier step."""
+    print("\n" + puzzle["intro"])
+    misses = {}     # one tally per step, kept even after a setback
+    solved = set()  # steps solved at least once
+    i = 0
+    while i < len(puzzle["steps"]):
+        step = puzzle["steps"][i]
+        print("\n" + step["scene"])
+        result = False
+        while result is False:
+            result = solve_step(step, team, misses.setdefault(i, {}), i not in solved)
+        if result is True:
+            solved.add(i)
+            i += 1
+        else:
+            print("Oh no! You'll have to try that part again.")
+            i = result
 
 
 def meet(pokemon, team):
@@ -115,8 +206,8 @@ def recap(team):
             print(f"  {pokemon.line[0]} grew into {pokemon.name}.  friendship: {pokemon.friendship}")
         else:
             print(f"  {pokemon.name} is still growing.  friendship: {pokemon.friendship}")
-    print(f"\nYou solved {stats['puzzles']} puzzles and tried {stats['ideas_tried']} ideas.")
-    extra = stats["ideas_tried"] - stats["puzzles"]
+    print(f"\nYou solved {stats['steps']} puzzle steps and tried {stats['ideas_tried']} ideas.")
+    extra = stats["missed"]
     if extra == 0:
         print("You got every one on the first try. What a sharp problem solver!")
     else:
@@ -136,7 +227,7 @@ def main():
     # Act 1: a puzzle that fits your starter's type.
     print("\n--- Act 1: First Steps ---")
     starter_type = starter.types[0]
-    solve_puzzle(ACT1[starter_type], team)
+    play_puzzle(ACT1[starter_type], team)
 
     # Work out who you meet 2nd and 3rd, based on your starter.
     start = TYPE_ORDER.index(starter_type)
@@ -147,16 +238,14 @@ def main():
 
     # Act 2: a puzzle that needs your new friend's type.
     print("\n--- Act 2: New Friends ---")
-    solve_puzzle(ACT2[second.types[0]], team)
+    play_puzzle(ACT2[second.types[0]], team)
     meet(third, team)
 
     # Act 3: two-step puzzles that need the whole team.
     print("\n--- Act 3: The Road to Shoal Cave ---")
     print("With all three friends together, you set off for Shoal Cave.")
     for puzzle in ACT3:
-        print("\n" + puzzle["intro"])
-        for step in puzzle["steps"]:
-            solve_puzzle(step, team)
+        play_puzzle(puzzle, team)
 
     # Finale: everyone shares the moment, and everyone's friendship grows.
     print("\nAt the bottom of Shoal Cave, the ice sparkles like stars.")

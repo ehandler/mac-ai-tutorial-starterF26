@@ -9,8 +9,11 @@ You don't need an idea yet. Claude will help you find one.
 **Hoenn Puzzle Adventure** is a Pokémon text adventure with no battles.
 You pick Spheal, Seedot or Litwick from Professor Kestrel in Littleroot Town.
 The other two join you along the way.
-To get past each obstacle, you pick the Pokémon whose type fits the problem.
-Water puts out fires, Grass grows vine bridges and Fire burns through ropes.
+To get past each obstacle, you pick a Pokémon and then one of its moves.
+Each Pokémon has a move for each of its two types plus one Normal move.
+Water puts out fires, Ice freezes rivers, Dark sneaks past sleepers and Ghost slips through doors.
+Puzzles take several steps, and the order matters. A wrong move can set you back a step.
+Later puzzles need two friends working together, like Fire and Water making steam.
 When your Pokémon help solve puzzles, your friendship grows and they evolve.
 The goal is the journey: make friends and become a smart problem solver.
 
